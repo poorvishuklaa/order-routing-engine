@@ -2,10 +2,12 @@ package com.orderrouting.service;
 
 import com.orderrouting.dto.RoutingDtos.*;
 import com.orderrouting.entity.*;
+import com.orderrouting.exception.BadRequestException;
 import com.orderrouting.exception.NotFoundException;
 import com.orderrouting.repository.FacilityGroupRepository;
 import com.orderrouting.repository.FacilityRepository;
 import com.orderrouting.repository.RoutingGroupRepository;
+import com.orderrouting.scheduler.RoutingScheduler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
@@ -24,6 +26,7 @@ public class RoutingGroupService {
     private final FacilityGroupRepository facilityGroupRepository;
     private final RoutingConfigValidator validator;
     private final RoutingGroupMapper mapper;
+    private final RoutingScheduler scheduler;
 
     @Transactional(readOnly = true)
     public List<RoutingGroup> findAll() {
@@ -82,6 +85,32 @@ public class RoutingGroupService {
     @Transactional
     public void delete(Long id) {
         groupRepository.delete(load(id));
+        scheduler.cancel(id);
+    }
+
+    /** Saved right away, separately from the main Save (like the spec). */
+    @Transactional
+    public RoutingGroupDto updateSchedule(Long id, String cronExpression) {
+        if (!RoutingScheduler.isValid(cronExpression)) {
+            throw new BadRequestException("Invalid cron expression '" + cronExpression
+                    + "'. Use 6 fields: second minute hour day month weekday, e.g. 0 0/15 * * * *");
+        }
+        RoutingGroup group = load(id);
+        group.setCronExpression(cronExpression);
+        scheduler.reschedule(group);
+        return mapper.toDto(group);
+    }
+
+    /** ACTIVE = schedule running, DRAFT = schedule paused. */
+    @Transactional
+    public RoutingGroupDto updateStatus(Long id, GroupStatus status) {
+        RoutingGroup group = load(id);
+        if (status == GroupStatus.ACTIVE && !RoutingScheduler.isValid(group.getCronExpression())) {
+            throw new BadRequestException("Set a schedule before activating the group");
+        }
+        group.setStatus(status);
+        scheduler.reschedule(group);
+        return mapper.toDto(group);
     }
 
     @Transactional(readOnly = true)

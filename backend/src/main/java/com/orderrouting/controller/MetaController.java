@@ -35,6 +35,7 @@ public class MetaController {
                 "failActions", FailAction.values(),
                 "routingStatuses", RoutingStatus.values(),
                 "carriers", RoutingConfigValidator.CARRIERS.stream().sorted().toList(),
-                "queues", queues);
+                "queues", queues,
+                "serverTimeZone", java.util.TimeZone.getDefault().getID());
     }
 }
