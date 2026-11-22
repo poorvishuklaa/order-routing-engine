@@ -4,6 +4,8 @@ An order routing service that picks the **best fulfillment facility** (warehouse
 
 An **agentic AI workflow** (an LLM with tool calling) analyzes routing results, inventory and customer locations, then recommends rule changes. Its output is schema-validated and is applied **only after an admin approves it** in the React dashboard.
 
+**Live demo:** **[order-routing-app.up.railway.app](https://order-routing-app.up.railway.app)**. Log in as `admin` / `admin123` (full access) or `viewer` / `viewer123` (read only).
+
 **Tech:** Java 21 · Spring Boot 3.5 · Spring Data JPA (Hibernate) · MySQL · Spring Security + JWT · Spring AI (Anthropic) · React 19 + Vite · Material UI · Recharts · JUnit 5
 
 ![Dashboard](docs/screenshots/dashboard.png)
@@ -119,7 +121,7 @@ The root `Dockerfile` builds the React app and serves it from Spring Boot, so th
    - `JWT_SECRET` = a random string of 32+ characters
    - `PORT` = `8080`
    - optionally `ANTHROPIC_API_KEY`
-4. Generate a public domain. Every push to `main` redeploys.
+4. Generate a public domain (this project: https://order-routing-app.up.railway.app). Every push to `main` redeploys.
 
 ### Run tests
 ```bash
