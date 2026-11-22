@@ -34,8 +34,10 @@ public class RunHistoryService {
         return runs.map(this::toDto);
     }
 
+    /** Re-reads the run in this transaction, so callers can pass a detached run. */
     @Transactional(readOnly = true)
-    public RoutingRunDto toDto(RoutingRun r) {
+    public RoutingRunDto toDto(RoutingRun run) {
+        RoutingRun r = run.getId() == null ? run : runRepository.findById(run.getId()).orElse(run);
         return new RoutingRunDto(r.getId(),
                 r.getRoutingGroup() == null ? null : r.getRoutingGroup().getId(),
                 r.getRoutingGroup() == null ? null : r.getRoutingGroup().getName(),

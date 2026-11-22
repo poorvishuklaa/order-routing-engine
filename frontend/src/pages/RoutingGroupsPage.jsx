@@ -34,7 +34,7 @@ export default function RoutingGroupsPage() {
   const act = async (fn, message) => {
     try {
       await fn()
-      setToast(message)
+      if (message) setToast(message)
       load()
     } catch (e) {
       setError(errorMessage(e))

@@ -15,7 +15,7 @@ export default function DecisionsPage() {
   const [outcome, setOutcome] = useState('')
   const [page, setPage] = useState(0)
   const [size, setSize] = useState(25)
-  const [data, setData] = useState({ content: [], totalElements: 0 })
+  const [data, setData] = useState({ content: [], page: { totalElements: 0 } })
   const [error, setError] = useState('')
 
   useEffect(() => {
@@ -63,7 +63,7 @@ export default function DecisionsPage() {
             {!data.content.length && <TableRow><TableCell colSpan={9}>No decisions yet. Run a routing group.</TableCell></TableRow>}
           </TableBody>
         </Table>
-        <TablePagination component="div" count={data.totalElements} page={page} rowsPerPage={size}
+        <TablePagination component="div" count={data.page?.totalElements ?? 0} page={page} rowsPerPage={size}
           onPageChange={(e, p) => setPage(p)} onRowsPerPageChange={(e) => { setSize(Number(e.target.value)); setPage(0) }}
           rowsPerPageOptions={[25, 50, 100]} />
       </Paper>

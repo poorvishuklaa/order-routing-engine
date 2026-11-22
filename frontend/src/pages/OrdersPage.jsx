@@ -105,7 +105,7 @@ function OrderDrawer({ orderId, onClose }) {
 export default function OrdersPage() {
   const [query, setQuery] = useState('')
   const [page, setPage] = useState(0)
-  const [data, setData] = useState({ content: [], totalElements: 0 })
+  const [data, setData] = useState({ content: [], page: { totalElements: 0 } })
   const [selected, setSelected] = useState(null)
   const [error, setError] = useState('')
 
@@ -140,7 +140,7 @@ export default function OrdersPage() {
             ))}
           </TableBody>
         </Table>
-        <TablePagination component="div" count={data.totalElements} page={page} rowsPerPage={20} rowsPerPageOptions={[20]}
+        <TablePagination component="div" count={data.page?.totalElements ?? 0} page={page} rowsPerPage={20} rowsPerPageOptions={[20]}
           onPageChange={(e, p) => setPage(p)} />
       </Paper>
       <OrderDrawer orderId={selected} onClose={() => setSelected(null)} />
