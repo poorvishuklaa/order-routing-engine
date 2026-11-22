@@ -5,6 +5,7 @@ import com.orderrouting.repository.InventoryRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.transaction.support.TransactionTemplate;
 
@@ -18,6 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * time and both try to reserve it. Optimistic locking must let only one win.
  */
 @SpringBootTest
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 class InventoryConcurrencyTest {
 
     @Autowired InventoryRepository inventoryRepository;

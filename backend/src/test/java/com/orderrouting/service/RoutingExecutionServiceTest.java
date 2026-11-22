@@ -5,6 +5,7 @@ import com.orderrouting.repository.*;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.List;
@@ -13,6 +14,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /** End-to-end run of the sample routing group against the sample data. */
 @SpringBootTest
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 class RoutingExecutionServiceTest {
 
     @Autowired RoutingExecutionService executionService;

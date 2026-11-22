@@ -87,6 +87,43 @@ public class RoutingExecutionService {
         return runRepository.save(run);
     }
 
+    /**
+     * Routes one order right away through every ACTIVE group (used after a facility
+     * rejects an item). If another run holds the lock, the item simply waits in
+     * its queue for the next scheduled run.
+     */
+    public Optional<RoutingRun> rerouteOrder(Long orderId) {
+        Optional<String> lock = lockService.tryAcquire();
+        if (lock.isEmpty()) {
+            return Optional.empty();
+        }
+        try {
+            List<RoutingPlan> plans = transactionTemplate.execute(status -> groupRepository
+                    .findByStatus(GroupStatus.ACTIVE).stream()
+                    .sorted(java.util.Comparator.comparing(RoutingGroup::getId))
+                    .map(g -> loadPlan(g.getId())).toList());
+            RoutingRun run = startRun(plans.isEmpty() ? null : plans.get(0).groupId(), RunTrigger.REROUTE);
+            int tried = 0;
+            int placed = 0;
+            for (RoutingPlan plan : plans) {
+                for (RoutingPlan.RoutingStep routing : plan.routings()) {
+                    if (orderSelector.matches(routing, orderId)) {
+                        OrderRouter.Result result = orderRouter.route(orderId, plan, routing, run.getId(), false);
+                        tried += result.itemsConsidered();
+                        placed += result.itemsPlaced();
+                    }
+                }
+            }
+            run.setItemsTried(tried);
+            run.setItemsPlaced(placed);
+            run.setStatus(RunStatus.COMPLETED);
+            run.setFinishedAt(LocalDateTime.now());
+            return Optional.of(runRepository.save(run));
+        } finally {
+            lockService.release(lock.get());
+        }
+    }
+
     /** Reads the group's active routings and rules into a detached plan. */
     public RoutingPlan loadPlan(Long groupId) {
         return transactionTemplate.execute(status -> {
@@ -99,7 +136,7 @@ public class RoutingExecutionService {
 
     private RoutingRun startRun(Long groupId, RunTrigger trigger) {
         RoutingRun run = new RoutingRun();
-        run.setRoutingGroup(groupRepository.getReferenceById(groupId));
+        run.setRoutingGroup(groupId == null ? null : groupRepository.getReferenceById(groupId));
         run.setTriggerType(trigger);
         run.setStatus(RunStatus.RUNNING);
         run.setStartedAt(LocalDateTime.now());
