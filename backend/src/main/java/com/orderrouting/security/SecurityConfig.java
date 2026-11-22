@@ -26,6 +26,7 @@ import java.util.List;
  * - POST /api/auth/login is public
  * - GET requests need any logged-in user (ADMIN or VIEWER)
  * - POST/PUT/DELETE need ADMIN
+ * - everything outside /api (the React app) is public
  */
 @Configuration
 @EnableMethodSecurity
@@ -49,7 +50,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/**").authenticated()
                         .requestMatchers("/api/**").hasRole("ADMIN")
-                        .anyRequest().denyAll())
+                        .anyRequest().permitAll())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
