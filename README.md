@@ -108,6 +108,19 @@ Open http://localhost:5173 and log in with **admin / admin123** (can edit) or **
 4. **Orders →** open an order **→ Facility rejects**: watch it re-route.
 5. **AI Recommendations → Get AI recommendations** (needs `ANTHROPIC_API_KEY`) **→ Approve**.
 
+### Deploy (Railway)
+The root `Dockerfile` builds the React app and serves it from Spring Boot, so the whole app is **one service plus MySQL**. On Railway:
+1. Add a MySQL database (template `mysql`).
+2. Add a service from this GitHub repo; it builds with the root `Dockerfile`.
+3. Set the service variables:
+   - `DB_URL` = `jdbc:mysql://${{MySQL.MYSQLHOST}}:${{MySQL.MYSQLPORT}}/${{MySQL.MYSQLDATABASE}}?serverTimezone=UTC&allowPublicKeyRetrieval=true&useSSL=false`
+   - `DB_USERNAME` = `${{MySQL.MYSQLUSER}}`
+   - `DB_PASSWORD` = `${{MySQL.MYSQLPASSWORD}}`
+   - `JWT_SECRET` = a random string of 32+ characters
+   - `PORT` = `8080`
+   - optionally `ANTHROPIC_API_KEY`
+4. Generate a public domain. Every push to `main` redeploys.
+
 ### Run tests
 ```bash
 cd backend
