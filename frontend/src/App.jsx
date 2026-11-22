@@ -5,6 +5,9 @@ import LoginPage from './pages/LoginPage.jsx'
 import DashboardPage from './pages/DashboardPage.jsx'
 import RoutingGroupsPage from './pages/RoutingGroupsPage.jsx'
 import RoutingGroupEditorPage from './pages/RoutingGroupEditorPage.jsx'
+import DecisionsPage from './pages/DecisionsPage.jsx'
+import OrdersPage from './pages/OrdersPage.jsx'
+import FacilitiesPage from './pages/FacilitiesPage.jsx'
 
 export default function App() {
   return (
@@ -14,6 +17,9 @@ export default function App() {
         <Route path="/" element={<DashboardPage />} />
         <Route path="/routing-groups" element={<RoutingGroupsPage />} />
         <Route path="/routing-groups/:id" element={<RoutingGroupEditorPage />} />
+        <Route path="/decisions" element={<DecisionsPage />} />
+        <Route path="/orders" element={<OrdersPage />} />
+        <Route path="/facilities" element={<FacilitiesPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
