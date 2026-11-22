@@ -11,6 +11,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Runs a routing group: for each active routing (in sequence), finds matching
@@ -27,9 +28,30 @@ public class RoutingExecutionService {
     private final OrderSelector orderSelector;
     private final OrderRouter orderRouter;
     private final TransactionTemplate transactionTemplate;
+    private final RoutingLockService lockService;
 
+    /**
+     * Runs the group if no other run is in progress. If the lock is taken the
+     * run is recorded as SKIPPED instead of waiting, so runs never pile up.
+     */
     public RoutingRun runGroup(Long groupId, RunTrigger trigger) {
         RoutingPlan plan = loadPlan(groupId);
+        Optional<String> lock = lockService.tryAcquire();
+        if (lock.isEmpty()) {
+            RoutingRun skipped = startRun(groupId, trigger);
+            skipped.setStatus(RunStatus.SKIPPED);
+            skipped.setFinishedAt(LocalDateTime.now());
+            skipped.setErrorMessage("Skipped: another routing run is still in progress");
+            return runRepository.save(skipped);
+        }
+        try {
+            return execute(plan, groupId, trigger);
+        } finally {
+            lockService.release(lock.get());
+        }
+    }
+
+    private RoutingRun execute(RoutingPlan plan, Long groupId, RunTrigger trigger) {
         RoutingRun run = startRun(groupId, trigger);
         int tried = 0;
         int placed = 0;
