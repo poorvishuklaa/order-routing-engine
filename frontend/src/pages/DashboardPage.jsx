@@ -66,7 +66,7 @@ export default function DashboardPage() {
             <Section title="Average transit days by customer region">
               {s.transitByRegion.length
                 ? <SimpleBarChart data={s.transitByRegion.map((r) => ({ ...r, region: r.area.split(',')[0] }))}
-                    xKey="region" yKey="averageTransitDays" valueLabel="Avg transit days" />
+                    xKey="region" yKey="averageTransitDays" valueLabel="Avg transit days" horizontal />
                 : <Typography color="text.secondary">No data.</Typography>}
             </Section>
           </Grid>

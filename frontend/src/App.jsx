@@ -8,6 +8,7 @@ import RoutingGroupEditorPage from './pages/RoutingGroupEditorPage.jsx'
 import DecisionsPage from './pages/DecisionsPage.jsx'
 import OrdersPage from './pages/OrdersPage.jsx'
 import FacilitiesPage from './pages/FacilitiesPage.jsx'
+import AiRecommendationsPage from './pages/AiRecommendationsPage.jsx'
 
 export default function App() {
   return (
@@ -20,6 +21,7 @@ export default function App() {
         <Route path="/decisions" element={<DecisionsPage />} />
         <Route path="/orders" element={<OrdersPage />} />
         <Route path="/facilities" element={<FacilitiesPage />} />
+        <Route path="/ai" element={<AiRecommendationsPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
